@@ -115,6 +115,7 @@ export default {
       this.axios.delete(`${process.env.VUE_APP_API}/api/${process.env.VUE_APP_PATH}/admin/orders/all`)
         .then(res => {
           alert(res.data.message)
+          this.getOrders()
         })
         .catch(error => {
           alert(error.response.data.message)
