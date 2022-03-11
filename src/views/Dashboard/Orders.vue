@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex justify-content-end">
-    <button type="button" class="btn btn-danger" @click="delAllOrder">刪除全部訂單</button>
+    <button type="button" class="btn btn-danger"  @click="judgeModal('delAll')">刪除全部訂單</button>
   </div>
   <table class="table table-hover">
     <thead>
@@ -51,6 +51,11 @@
   <div class="modal fade" id="delOrderModal" ref="delOrderModal" tabindex="-1" aria-labelledby="delOrderModalLabel" aria-hidden="true">
     <DelModal :temp="temp" @get-orders="getOrders" :del-model="delModel"></DelModal>
   </div>
+
+  <!-- 刪除全部訂單 Modal -->
+  <div class="modal fade" id="orderAllDel" ref="orderAllDel" tabindex="-1" aria-labelledby="orderAllDelLabel" aria-hidden="true">
+    <DelAllModal :del-text="delText" @del-all-order="delAllOrder"></DelAllModal>
+  </div>
 </template>
 
 <script>
@@ -58,6 +63,7 @@ import Modal from 'bootstrap/js/dist/modal'
 import Pagination from '@/components/Pagination.vue'
 import DelModal from '@/components/DelModal.vue'
 import OrderModal from '@/components/OrderModal.vue'
+import DelAllModal from '@/components/DelAllModal.vue'
 
 export default {
   data () {
@@ -66,13 +72,16 @@ export default {
       pagination: {},
       temp: {},
       orderModal: '',
-      delModel: ''
+      delModel: '',
+      orderAllDel: '',
+      delText: '' // 刪除全部訂單文字
     }
   },
   components: {
     Pagination,
     DelModal,
-    OrderModal
+    OrderModal,
+    DelAllModal
   },
   methods: {
     // 取得訂單
@@ -81,6 +90,9 @@ export default {
         .then(res => {
           this.orders = res.data.orders
           this.pagination = res.data.pagination
+        })
+        .catch(error => {
+          alert(error.response.data.message)
         })
     },
     // 日期
@@ -106,6 +118,10 @@ export default {
           this.temp = { ...item }
           this.delModel.show()
           break
+        case 'delAll':
+          this.delText = isNew
+          this.orderAllDel.show()
+          break
         default:
           break
       }
@@ -114,6 +130,7 @@ export default {
     delAllOrder () {
       this.axios.delete(`${process.env.VUE_APP_API}/api/${process.env.VUE_APP_PATH}/admin/orders/all`)
         .then(res => {
+          this.orderAllDel.show()
           alert(res.data.message)
           this.getOrders()
         })
@@ -131,6 +148,10 @@ export default {
       backdrop: 'static'
     })
     this.delModel = new Modal(this.$refs.delOrderModal, {
+      keyboard: false,
+      backdrop: 'static'
+    })
+    this.orderAllDel = new Modal(this.$refs.orderAllDel, {
       keyboard: false,
       backdrop: 'static'
     })
